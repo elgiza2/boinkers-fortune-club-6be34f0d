@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Crown, Gift, Ticket } from "lucide-react";
 import hero from "@/assets/hero-character.png";
 import { Screen } from "@/components/game/Shell";
-import { useGame, fmt, beep, haptic, passNeed, currentEvent, evNeed, evReward, clock } from "@/lib/game";
+import { useGame, fmt, beep, haptic, passNeed, currentEvent, evNeed, evReward, clock, prizeTier, applyPrizeMult } from "@/lib/game";
 import { EventsRow } from "@/components/game/LiveEvents";
 import { REEL_WEIGHTS, payout } from "@/lib/slots";
 import { LIVE_EVENTS } from "@/lib/events";
@@ -56,7 +56,9 @@ function Home() {
   const [reels, setReels] = useState<Cell[]>(["bolt", "coin", "chest"]);
   const [spinning, setSpinning] = useState([false, false, false]);
   const [bet, setBet] = useState(1);
-  const [win, setWin] = useState<{ coins: number; spins: number; tickets: number; ton: number; k: number } | null>(null);
+  const [win, setWin] = useState<{ coins: number; spins: number; tickets: number; ton: number; k: number; mult: number } | null>(null);
+  type WinInfo = NonNullable<typeof win>;
+  const [pop, setPop] = useState<WinInfo | null>(null);
   const [name, setName] = useState("Player");
   const [levelUp, setLevelUp] = useState(false);
   useEffect(() => {
@@ -84,15 +86,20 @@ function Home() {
       if (i === 2) {
         const p = payout(result, bet);
         const mainHits = result.filter((x) => x === "token").length * bet;
-        if (mainHits) p.coins += gainEvent(mainHits);
+        const tokenCoins = mainHits ? gainEvent(mainHits) : 0;
         const hits: Record<string, number> = {};
         result.filter(isLive).forEach((k) => { hits[k] = (hits[k] ?? 0) + bet; });
         if (Object.keys(hits).length) gainLive(hits);
-        grant(p);
-        if (p.coins || p.spins || p.tickets || p.ton) {
+        // The more spins the player holds, the bigger every prize lands.
+        const luck = prizeTier(s.spins);
+        const total = applyPrizeMult({ ...p, coins: p.coins + tokenCoins }, luck.mult);
+        grant(total);
+        if (total.coins || total.spins || total.tickets || total.ton) {
           setShake(true); setTimeout(() => setShake(false), 650);
           beep(s.sound, 900, 0.25);
-          setWin({ ...p, k: Date.now() });
+          const info: WinInfo = { ...total, k: Date.now(), mult: luck.mult };
+          setWin(info); setPop(info);
+          setTimeout(() => setPop((cur) => (cur?.k === info.k ? null : cur)), 3200);
         }
       }
     }, 700 + i * 350));
@@ -106,6 +113,7 @@ function Home() {
   const spinBtn = (
     <div className="relative h-full w-full">
       {/* dark ring behind the diamond */}
+
       <div className="absolute inset-[6px] rotate-45 rounded-[30px] border-[3px] border-ink bg-night" />
       <button
         onClick={() => { if (auto) setAuto(false); else spin(); }}
