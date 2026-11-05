@@ -14,8 +14,9 @@ const BANDS = [
 
 /** Rounds to two significant digits so prices stay readable. */
 function nice(v: number) {
-  const m = Math.pow(10, Math.floor(Math.log10(v)) - 1);
-  return Math.round(v / m) * m;
+  const exp = Math.floor(Math.log10(v)) - 1;
+  const m = Math.pow(10, exp);
+  return +(Math.round(v / m) * m).toFixed(Math.max(0, -exp));
 }
 function bandPrice(i: number) {
   const band = BANDS.find((b) => i >= b.from && i < b.from + b.count) ?? BANDS[0];

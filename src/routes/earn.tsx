@@ -55,7 +55,7 @@ function Tasks() {
       <h2 className="font-display text-2xl text-sun">COMPLETE &amp; EARN</h2>
       {TASKS.map((t) => {
         const done = s.tasksDone.includes(t.id), go = opened.includes(t.id);
-        const label = t.r.spins ? `+${t.r.spins} SPINS` : t.r.coins ? `+${fmt(t.r.coins)} COINS` : `+${t.r.tickets} TICKET`;
+        const label = t.r.spins ? `+${t.r.spins} SPINS` : `+${t.r.tickets ?? 0} TICKET${(t.r.tickets ?? 0) > 1 ? "S" : ""}`;
         return (
           <div key={t.id} className="glass-card flex items-center gap-3 p-2.5">
             {t.id === "yt"
@@ -131,7 +131,7 @@ const PACKS = [
 ];
 
 function Shop() {
-  const { s, grant, spend } = useGame();
+  const { grant, spend } = useGame();
   return (
     <div className="grid grid-cols-2 gap-2.5">
       {PACKS.map((p) => (
@@ -140,11 +140,9 @@ function Shop() {
           <div className="mt-1 font-display">{p.name}</div>
           <div className="text-xs text-muted-foreground">{p.desc}</div>
           <button onClick={() => {
-            const ok = p.solo ? s.solo >= p.cost : spend({ coins: p.cost });
-            if (!ok) { toast.error("Not enough balance"); return; }
-            if (p.solo) grant({ solo: -p.cost });
+            if (!spend({ coins: p.cost })) { toast.error("Not enough coins"); return; }
             grant(p.give); toast.success(`${p.name} bought!`);
-          }} className="pill-btn pill-btn-lime mt-2.5 w-full">{fmt(p.cost)} {p.solo ? "SOLO" : "COINS"}</button>
+          }} className="pill-btn pill-btn-lime mt-2.5 w-full">{fmt(p.cost)} COINS</button>
         </div>
       ))}
     </div>

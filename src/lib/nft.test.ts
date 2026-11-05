@@ -9,3 +9,9 @@ it("filters collectibles by collection and name", () => {
   expect(filterNfts("Astronaut", "Explorers").map(item => item.id)).toEqual([1]);
   expect(filterNfts("Astronaut", "Fantasy")).toEqual([]);
 });
+it("prices spread from 1 to 5000 TON", () => {
+  const prices = NFT_ITEMS.map(item => item.price);
+  expect(Math.min(...prices)).toBe(1);
+  expect(Math.max(...prices)).toBe(5000);
+  expect(prices.every(p => Number.isFinite(p) && p >= 1 && p <= 5000)).toBe(true);
+});
