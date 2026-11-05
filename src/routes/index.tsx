@@ -25,6 +25,41 @@ export const Route = createFileRoute("/")({
 });
 
 type Cell = string; // base symbol, "token" (main event) or a live event key
+type WinInfo = { coins: number; spins: number; tickets: number; ton: number; k: number; mult: number };
+type Burst = { img: string; left: number; top: number; size: number; tx: number; ty: number; s: number; rot: number; dur: number; delay: number };
+
+const rand = (seed: number) => () => {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+};
+
+// Prize burst: a shower of coins flying out beside the machine toward the player.
+function burstParts(p: WinInfo): Burst[] {
+  const rng = rand(p.k + 1);
+  const kinds: { img: string; n: number; size: number }[] = [];
+  if (p.coins) kinds.push({ img: ART.coin, n: Math.min(18, 9 + Math.floor(Math.log10(p.coins + 1) * 3)), size: 28 });
+  if (p.spins) kinds.push({ img: ART.bolt, n: 3, size: 24 });
+  if (p.tickets) kinds.push({ img: ART.wheelSpin, n: 3, size: 26 });
+  if (p.ton) kinds.push({ img: ART.ton, n: 5, size: 30 });
+  const out: Burst[] = [];
+  for (const kind of kinds) {
+    for (let i = 0; i < kind.n; i++) {
+      out.push({
+        img: kind.img,
+        left: 40 + rng() * 20, // start beside the machine
+        top: 30 + rng() * 14,
+        size: kind.size + Math.round(rng() * 14),
+        tx: (rng() * 2 - 1) * 190, // spread across the screen
+        ty: 90 + rng() * 280, // fly toward the player
+        s: 1.3 + rng() * 1.2, // grow as it gets closer
+        rot: (rng() * 2 - 1) * 260,
+        dur: 1150 + rng() * 750,
+        delay: i * 45 + Math.round(rng() * 120),
+      });
+    }
+  }
+  return out.sort((a, b) => a.delay - b.delay);
+}
 const BASE = ["coin", "bolt", "wheel", "chest", "gem"] as const;
 const STRIP: Cell[] = [...BASE, "token", ...LIVE_EVENTS.map((e) => e.key)];
 const isLive = (c: Cell) => LIVE_EVENTS.some((e) => e.key === c);
@@ -56,8 +91,7 @@ function Home() {
   const [reels, setReels] = useState<Cell[]>(["bolt", "coin", "chest"]);
   const [spinning, setSpinning] = useState([false, false, false]);
   const [bet, setBet] = useState(1);
-  const [win, setWin] = useState<{ coins: number; spins: number; tickets: number; ton: number; k: number; mult: number } | null>(null);
-  type WinInfo = NonNullable<typeof win>;
+  const [win, setWin] = useState<WinInfo | null>(null);
   const [pop, setPop] = useState<WinInfo | null>(null);
   const [name, setName] = useState("Player");
   const [levelUp, setLevelUp] = useState(false);
@@ -230,13 +264,21 @@ function Home() {
             </Link>
           </div>
           {pop && (
-            <div key={pop.k} className="win-pop" role="status">
-              <strong className="win-pop-title">YOU WON!</strong>
-              <div className="win-pop-row">
-                {([["coins", ART.coin], ["spins", ART.bolt], ["tickets", ART.wheelSpin], ["ton", ART.ton]] as const).filter(([k]) => pop[k] > 0).map(([k, img]) => (
-                  <span key={k} className="win-pop-chip"><img src={img} alt="" /><b>+{k === "ton" ? pop[k] : fmt(pop[k])}</b></span>
-                ))}
-              </div>
+            <div key={pop.k} className="win-burst" role="status">
+              {burstParts(pop).map((b, i) => (
+                <img
+                  key={i}
+                  src={b.img}
+                  alt=""
+                  className="win-burst-coin"
+                  style={{
+                    left: `${b.left}%`, top: `${b.top}%`, width: b.size, height: b.size,
+                    animationDelay: `${b.delay}ms`,
+                    ["--tx" as string]: `${b.tx}px`, ["--ty" as string]: `${b.ty}px`,
+                    ["--s" as string]: b.s, ["--rot" as string]: `${b.rot}deg`, ["--dur" as string]: `${b.dur}ms`,
+                  }}
+                />
+              ))}
             </div>
           )}
         </div>
