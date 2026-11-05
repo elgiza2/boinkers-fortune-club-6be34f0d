@@ -25,7 +25,7 @@ export const Route = createFileRoute("/")({
 });
 
 type Cell = string; // base symbol, "token" (main event) or a live event key
-type WinInfo = { coins: number; spins: number; tickets: number; ton: number; k: number; mult: number };
+type WinInfo = { coins: number; spins: number; tickets: number; ton: number; k: number; mult: number; tok?: { key: string; n: number } };
 type Burst = { img: string; left: number; top: number; size: number; tx: number; ty: number; s: number; rot: number; dur: number; delay: number };
 
 const rand = (seed: number) => () => {
@@ -111,7 +111,10 @@ function Home() {
     const up = gainPass(bet);
     if (up) setTimeout(() => setLevelUp(true), 1500);
     if (up) setTimeout(() => toast.success(`Pass level ${up}! Gifts added`), 1500);
-    const result: Cell[] = [rnd(), rnd(), rnd()];
+    const raw: Cell[] = [rnd(), rnd(), rnd()];
+    // Only one token type may land in the same spin.
+    const tokCell = raw.find((c) => c === "token" || isLive(c));
+    const result: Cell[] = raw.map((c) => (c !== tokCell && (c === "token" || isLive(c)) ? BASE[Math.floor(Math.random() * BASE.length)]! : c));
     setSpinning([true, true, true]);
     result.forEach((sym, i) => setTimeout(() => {
       setReels((r) => { const n = [...r]; n[i] = sym; return n; });
