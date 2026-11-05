@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Clock, LockKeyhole, Moon, X } from "lucide-react";
+import { Check, Clock, LockKeyhole, Moon, Ticket, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import headerArt from "@/assets/fire-pass-header.jpg";
