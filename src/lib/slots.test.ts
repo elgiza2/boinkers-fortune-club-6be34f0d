@@ -12,7 +12,8 @@ describe("slots payout rules", () => {
 
   it("never pays for 2 of a kind — every symbol needs 3, except tokens", () => {
     for (const row of PAYTABLE) {
-      const w = payout([row.sym, row.sym, "bolt"], 1);
+      const other = row.sym === "chest" ? "bolt" : "chest";
+      const w = payout([row.sym, row.sym, other], 1);
       expect(w.coins).toBe(100); // only the consolation coins, no symbol prize
       expect(w.spins).toBe(0);
       expect(w.tickets).toBe(0);
