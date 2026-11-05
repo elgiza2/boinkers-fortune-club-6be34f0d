@@ -40,7 +40,8 @@ describe("live events", () => {
 describe("slots", () => {
   it("pays spins, wheel spins and coins, not only coins", () => {
     expect(payout(["bolt", "bolt", "bolt"], 1).spins).toBe(25);
-    expect(payout(["wheel", "wheel", "coin"], 1).tickets).toBe(1);
+    expect(payout(["wheel", "wheel", "wheel"], 1).tickets).toBe(3);
+    expect(payout(["wheel", "wheel", "coin"], 1).tickets).toBe(0);
     expect(payout(["gem", "gem", "gem"], 2).coins).toBe(20000);
   });
   it("never awards TON from the slots", () => {
