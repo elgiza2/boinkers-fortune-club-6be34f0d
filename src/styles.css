@@ -507,3 +507,39 @@ body { font-family: var(--font-sans); }
 .slots-offer-loot-row > strong { font-size:26px; color:var(--sun-dark); -webkit-text-stroke:2px var(--ink); paint-order:stroke fill; width:22px; text-align:center; }.slots-offer-loot-row > div { flex:1; font-size:13px; }.slots-offer-loot-row .slots-offer-reward { justify-content:flex-start; color:var(--sky); font-size:21px; }.slots-offer-loot-row .slots-offer-step-action { width:70px; margin:0; }
 @media(max-width:360px) { .slots-offer-title,.slots-offer-sale .slots-offer-title { font-size:38px; }.slots-offer-egg .slots-offer-title span:last-child { font-size:39px; }.slots-offer-chapter { font-size:19px; } }
 @media(max-height:700px) { .slots-offer-dialog { gap:6px; padding-top:43px; }.slots-offer-egg-grand { height:90px; }.slots-offer-title { font-size:34px; }.slots-offer-egg .slots-offer-title span { font-size:35px !important; }.slots-offer-loot { padding-top:90px; }.slots-offer-loot-art { height:105px; }.slots-offer-fusion-copy { font-size:20px; }.slots-offer-sale-panel { padding:8px; }.slots-offer-sale-rewards .slots-offer-reward-large img { height:45px; width:45px; } }
+
+/* Luck multiplier meter and win popup on the slots screen. */
+.luck-meter { display:flex; align-items:center; gap:8px; margin:8px 4px 0; padding:4px 10px; border-radius:16px; background:oklch(0 0 0/.35); border:1px solid oklch(1 0 0/.12); }
+.luck-mult { font-family:var(--font-display); font-size:15px; color:var(--sun); -webkit-text-stroke:2px var(--ink); paint-order:stroke fill; }
+.luck-track { flex:1; height:8px; border-radius:99px; background:oklch(1 0 0/.15); overflow:hidden; }
+.luck-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--lime),var(--sun)); transition:width .4s; }
+.luck-hint { font-family:var(--font-display); font-size:9px; letter-spacing:.5px; color:oklch(1 0 0/.75); white-space:nowrap; }
+.win-pop { position:absolute; inset-inline:8px; top:34%; z-index:30; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 12px 12px; border-radius:22px; border:3px solid var(--ink); background:linear-gradient(180deg,oklch(.32 .09 265),oklch(.22 .07 265)); box-shadow:0 10px 30px oklch(0 0 0/.5); animation:win-pop .35s cubic-bezier(.2,1.6,.4,1); pointer-events:none; }
+.win-pop-title { font-family:var(--font-display); font-size:26px; color:var(--sun); -webkit-text-stroke:3px var(--ink); paint-order:stroke fill; }
+.win-pop-badge { position:absolute; top:-12px; padding:2px 10px; border-radius:99px; border:2px solid var(--ink); background:linear-gradient(180deg,var(--sun),var(--sun-dark)); font-family:var(--font-display); font-size:11px; color:var(--cream); }
+.win-pop-row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
+.win-pop-chip { display:flex; align-items:center; gap:5px; padding:4px 12px 4px 5px; border-radius:99px; border:2px solid var(--ink); background:oklch(1 0 0/.92); }
+.win-pop-chip img { width:26px; height:26px; object-fit:contain; }
+.win-pop-chip b { font-family:var(--font-display); font-size:15px; color:var(--ink); }
+@keyframes win-pop { from { transform:scale(.6); opacity:0; } }
+
+/* Currency choice (TON vs Telegram Stars) shown wherever the game sells something. */
+.pay-toggle { display:inline-flex; gap:4px; padding:3px; border-radius:99px; background:oklch(0 0 0/.4); border:2px solid oklch(1 0 0/.15); }
+.pay-toggle button { display:flex; align-items:center; gap:5px; padding:4px 12px; border-radius:99px; font-family:var(--font-display); font-size:12px; color:oklch(1 0 0/.75); }
+.pay-toggle button img { width:16px; height:16px; object-fit:contain; }
+.pay-toggle button.pay-toggle-on { background:linear-gradient(180deg,var(--sun),var(--sun-dark)); color:var(--cream); box-shadow:0 2px 0 var(--ink); }
+.price-tag { display:inline-flex; align-items:center; gap:4px; font-family:var(--font-display); white-space:nowrap; }
+.price-tag img { width:16px; height:16px; object-fit:contain; }
+.slots-offer-pay { align-self:center; flex:none; }
+
+/* Royal Pass subscriptions. */
+.fire-pass-subscribe { display:flex; flex-direction:column; gap:8px; align-items:center; }
+.fire-pass-sub-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+.fire-pass-sub-card { position:relative; display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 8px; border-radius:12px; border:3px solid var(--pass-outline); background:var(--offer-blue); color:var(--cream); font-family:var(--font-display); box-shadow:var(--offer-shadow); }
+.fire-pass-sub-card span { font-size:15px; -webkit-text-stroke:2px var(--pass-outline); paint-order:stroke fill; }
+.fire-pass-sub-card small { position:absolute; top:-9px; right:8px; padding:1px 8px; border-radius:99px; background:var(--lime); color:var(--ink); font-size:10px; }
+.fire-pass-sub-card:disabled { filter:grayscale(.6) brightness(.9); }
+.fire-pass-sub-royal { background:var(--pass-gold-dark); }
+.fire-pass-sub-note { font-size:10px; text-align:center; color:var(--cream); opacity:.8; font-family:var(--font-sans); }
+
+.nft-pay { margin:6px auto 10px; display:flex; width:max-content; }
