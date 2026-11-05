@@ -91,8 +91,7 @@ function Home() {
   const [reels, setReels] = useState<Cell[]>(["bolt", "coin", "chest"]);
   const [spinning, setSpinning] = useState([false, false, false]);
   const [bet, setBet] = useState(1);
-  const [win, setWin] = useState<{ coins: number; spins: number; tickets: number; ton: number; k: number; mult: number } | null>(null);
-  type WinInfo = NonNullable<typeof win>;
+  const [win, setWin] = useState<WinInfo | null>(null);
   const [pop, setPop] = useState<WinInfo | null>(null);
   const [name, setName] = useState("Player");
   const [levelUp, setLevelUp] = useState(false);
