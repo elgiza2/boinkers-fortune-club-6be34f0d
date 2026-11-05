@@ -42,7 +42,7 @@ function Earn() {
 
 const TASKS = [
   { id: "tg", icon: ART.bag, title: "Join our Telegram channel", url: "https://t.me/telegram", r: { spins: 10 } },
-  { id: "x", icon: ART.rocket, title: "Follow us on X", url: "https://x.com", r: { coins: 5000 } },
+  { id: "x", icon: ART.rocket, title: "Follow us on X", url: "https://x.com", r: { spins: 8 } },
   { id: "yt", icon: "▶️", title: "Watch the trailer", url: "https://youtube.com", r: { spins: 15 } },
   { id: "story", icon: ART.book, title: "Share a story", url: "https://t.me", r: { tickets: 1 } },
 ];
@@ -73,7 +73,7 @@ function Tasks() {
   );
 }
 
-const REF_STEPS = [{ n: 1, r: "10 SPINS" }, { n: 3, r: "1 TICKET" }, { n: 5, r: "50K COINS" }, { n: 10, r: "3 TICKETS" }, { n: 25, r: "1M COINS" }];
+const REF_STEPS = [{ n: 1, r: "10 SPINS" }, { n: 3, r: "1 TICKET" }, { n: 5, r: "100 SPINS" }, { n: 10, r: "3 TICKETS" }, { n: 25, r: "20 TICKETS" }];
 
 function Friends() {
   const link = "https://t.me/SoloSlotsBot?start=ref_" + ((typeof window !== "undefined" && (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.id) || "demo");
@@ -126,7 +126,6 @@ function Leaderboard() {
 
 const PACKS = [
   { name: "Spin Snack", icon: ART.bolt, give: { spins: 30 }, cost: 8000, desc: "30 Spins" },
-  { name: "Coin Chest", icon: ART.coin, give: { coins: 60000 }, cost: 1000, solo: true, desc: "60K Coins" },
   { name: "Lucky Ticket", icon: ART.gem, give: { tickets: 1 }, cost: 15000, desc: "1 Roulette ticket" },
   { name: "Mega Bundle", icon: ART.chest, give: { spins: 150, tickets: 3 }, cost: 60000, desc: "150 Spins + 3 tickets" },
 ];
