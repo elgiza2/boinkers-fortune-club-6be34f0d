@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { NFT_ITEMS } from "@/lib/nft";
 import { getTonWallet } from "@/lib/ton-wallet";
-import { ART } from "@/lib/art";
+import { PayToggle, PriceTag, type PayCurrency } from "@/components/game/PayToggle";
 
 export const Route = createFileRoute("/nft")({
   head: () => ({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/nft")({
 function NftPage() {
   const [address, setAddress] = useState("");
   const [connecting, setConnecting] = useState(false);
+  const [pay, setPay] = useState<PayCurrency>("ton");
   async function connect() {
     setConnecting(true);
     try {
@@ -40,12 +41,13 @@ function NftPage() {
   }
   return <Screen bare>
     <div className="nft-page">
+      <PayToggle value={pay} onChange={setPay} className="nft-pay" />
       <div className="nft-grid">
         {NFT_ITEMS.map(item => (
           <article key={item.id} className={`nft-tile nft-${item.group.toLowerCase()}`}>
             <div className="nft-tile-art"><img src={item.image} alt={item.name} loading="lazy" /></div>
             <h2>{item.name}</h2>
-            <Button onClick={buy} disabled={connecting} className="nft-tile-buy gap-1" aria-label={`Buy ${item.name} for ${item.price} TON`}><img src={ART.ton} alt="" className="h-5 w-5" />{item.price} TON</Button>
+            <Button onClick={buy} disabled={connecting} className="nft-tile-buy gap-1" aria-label={`Buy ${item.name}`}><PriceTag ton={item.price} currency={pay} /></Button>
           </article>
         ))}
       </div>
