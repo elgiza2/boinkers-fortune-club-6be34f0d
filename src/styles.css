@@ -409,6 +409,7 @@ body { font-family: var(--font-sans); }
 .slots-offer-egg .slots-offer-title span:first-child { color:var(--sky); font-size:45px; }
 .slots-offer-egg .slots-offer-title span:last-child { color:var(--grape); font-size:47px; }
 .slots-offer-action { background:var(--offer-action-fill); border:2px solid var(--pass-outline); color:var(--cream); box-shadow:var(--offer-shadow); font-family:var(--font-display); -webkit-text-stroke:2px var(--pass-outline); paint-order:stroke fill; border-radius:8px; font-size:20px; }
+.slots-offer-action > img { width:20px; height:20px; object-fit:contain; flex:none; }
 .slots-offer-action:hover { background:var(--offer-action-fill); filter:brightness(1.05); }
 .slots-offer-action:disabled { opacity:1; filter:saturate(.5) brightness(.75); }
 .slots-offer-countdown { flex:none; display:flex; align-items:center; justify-content:center; gap:6px; margin:0 auto; padding:3px 10px; border-radius:20px; background:var(--pass-outline); font-size:17px; white-space:nowrap; }
