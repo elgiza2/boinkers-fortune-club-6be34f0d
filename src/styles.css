@@ -514,14 +514,20 @@ body { font-family: var(--font-sans); }
 .luck-track { flex:1; height:8px; border-radius:99px; background:oklch(1 0 0/.15); overflow:hidden; }
 .luck-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--lime),var(--sun)); transition:width .4s; }
 .luck-hint { font-family:var(--font-display); font-size:9px; letter-spacing:.5px; color:oklch(1 0 0/.75); white-space:nowrap; }
-.win-pop { position:absolute; inset-inline:8px; top:34%; z-index:30; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 12px 12px; border-radius:22px; border:3px solid var(--ink); background:linear-gradient(180deg,oklch(.32 .09 265),oklch(.22 .07 265)); box-shadow:0 10px 30px oklch(0 0 0/.5); animation:win-pop .35s cubic-bezier(.2,1.6,.4,1); pointer-events:none; }
-.win-pop-title { font-family:var(--font-display); font-size:26px; color:var(--sun); -webkit-text-stroke:3px var(--ink); paint-order:stroke fill; }
-.win-pop-badge { position:absolute; top:-12px; padding:2px 10px; border-radius:99px; border:2px solid var(--ink); background:linear-gradient(180deg,var(--sun),var(--sun-dark)); font-family:var(--font-display); font-size:11px; color:var(--cream); }
-.win-pop-row { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
-.win-pop-chip { display:flex; align-items:center; gap:5px; padding:4px 12px 4px 5px; border-radius:99px; border:2px solid var(--ink); background:oklch(1 0 0/.92); }
-.win-pop-chip img { width:26px; height:26px; object-fit:contain; }
-.win-pop-chip b { font-family:var(--font-display); font-size:15px; color:var(--ink); }
-@keyframes win-pop { from { transform:scale(.6); opacity:0; } }
+/* Prize burst: coins shower out beside the machine toward the player. */
+.win-burst { position:absolute; inset:-10px; z-index:30; pointer-events:none; overflow:hidden; border-radius:36px; }
+.win-burst-coin { position:absolute; object-fit:contain; opacity:0; filter:drop-shadow(0 3px 3px oklch(0 0 0/.35)); transform:translate(0,0) scale(.2) rotate(0deg); animation:coin-fly var(--dur,1300ms) cubic-bezier(.18,.8,.36,1) forwards; }
+.win-tag { position:absolute; left:50%; top:6%; display:flex; gap:6px; padding:3px 10px; border-radius:99px; border:2px solid var(--ink); background:oklch(1 0 0/.95); box-shadow:0 4px 12px oklch(0 0 0/.35); transform:translateX(-50%); animation:win-tag .32s cubic-bezier(.2,1.6,.4,1); }
+.win-tag-item { display:flex; align-items:center; gap:4px; }
+.win-tag-item img { width:18px; height:18px; object-fit:contain; }
+.win-tag-item b { font-family:var(--font-display); font-size:14px; color:var(--ink); }
+@keyframes coin-fly {
+  0% { transform:translate(0,0) scale(.15) rotate(0deg); opacity:0; }
+  8% { opacity:1; }
+  70% { opacity:1; }
+  100% { transform:translate(var(--tx,0),var(--ty,0)) scale(var(--s,1.8)) rotate(var(--rot,0deg)); opacity:0; }
+}
+@keyframes win-tag { from { transform:translateX(-50%) scale(.6); opacity:0; } }
 
 /* Currency choice (TON vs Telegram Stars) shown wherever the game sells something. */
 .pay-toggle { display:inline-flex; gap:4px; padding:3px; border-radius:99px; background:oklch(0 0 0/.4); border:2px solid oklch(1 0 0/.15); }
