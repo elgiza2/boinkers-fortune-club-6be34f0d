@@ -264,11 +264,24 @@ function Home() {
             </Link>
           </div>
           {pop && (
-            <div key={pop.k} className="win-pop" role="status">
-              <strong className="win-pop-title">YOU WON!</strong>
-              <div className="win-pop-row">
+            <div key={pop.k} className="win-burst" role="status">
+              {burstParts(pop).map((b, i) => (
+                <img
+                  key={i}
+                  src={b.img}
+                  alt=""
+                  className="win-burst-coin"
+                  style={{
+                    left: `${b.left}%`, top: `${b.top}%`, width: b.size, height: b.size,
+                    animationDelay: `${b.delay}ms`,
+                    ["--tx" as string]: `${b.tx}px`, ["--ty" as string]: `${b.ty}px`,
+                    ["--s" as string]: b.s, ["--rot" as string]: `${b.rot}deg`, ["--dur" as string]: `${b.dur}ms`,
+                  }}
+                />
+              ))}
+              <div className="win-tag">
                 {([["coins", ART.coin], ["spins", ART.bolt], ["tickets", ART.wheelSpin], ["ton", ART.ton]] as const).filter(([k]) => pop[k] > 0).map(([k, img]) => (
-                  <span key={k} className="win-pop-chip"><img src={img} alt="" /><b>+{k === "ton" ? pop[k] : fmt(pop[k])}</b></span>
+                  <span key={k} className="win-tag-item"><img src={img} alt="" /><b>+{k === "ton" ? pop[k] : fmt(pop[k])}</b></span>
                 ))}
               </div>
             </div>
