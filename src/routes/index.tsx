@@ -279,11 +279,6 @@ function Home() {
                   }}
                 />
               ))}
-              <div className="win-tag">
-                {([["coins", ART.coin], ["spins", ART.bolt], ["tickets", ART.wheelSpin], ["ton", ART.ton]] as const).filter(([k]) => pop[k] > 0).map(([k, img]) => (
-                  <span key={k} className="win-tag-item"><img src={img} alt="" /><b>+{k === "ton" ? pop[k] : fmt(pop[k])}</b></span>
-                ))}
-              </div>
             </div>
           )}
         </div>
