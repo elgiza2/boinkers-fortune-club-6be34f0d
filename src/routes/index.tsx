@@ -191,13 +191,6 @@ function Home() {
               </span>
             </div>
 
-            {/* luck meter: bigger spin balance, bigger prizes */}
-            <div className="luck-meter" aria-label={`Luck multiplier x${luck.mult}`}>
-              <span className="luck-mult">×{luck.mult}</span>
-              <div className="luck-track"><div className="luck-fill" style={{ width: `${(Math.min(s.spins, 50) / 50) * 100}%` }} /></div>
-              <span className="luck-hint">{luck.next ? `${luck.spinsToNext} SPINS TO ×${luck.next}` : "MAX LUCK!"}</span>
-            </div>
-
             {/* reels */}
             <div className="mt-3 grid grid-cols-3 gap-2">
               {reels.map((sym, i) => (
@@ -239,7 +232,6 @@ function Home() {
           </div>
           {pop && (
             <div key={pop.k} className="win-pop" role="status">
-              <span className="win-pop-badge">LUCK ×{pop.mult}</span>
               <strong className="win-pop-title">YOU WON!</strong>
               <div className="win-pop-row">
                 {([["coins", ART.coin], ["spins", ART.bolt], ["tickets", ART.wheelSpin], ["ton", ART.ton]] as const).filter(([k]) => pop[k] > 0).map(([k, img]) => (

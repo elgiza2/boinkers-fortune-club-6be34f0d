@@ -55,7 +55,7 @@ function Tasks() {
       <h2 className="font-display text-2xl text-sun">COMPLETE &amp; EARN</h2>
       {TASKS.map((t) => {
         const done = s.tasksDone.includes(t.id), go = opened.includes(t.id);
-        const label = t.r.spins ? `+${t.r.spins} SPINS` : t.r.coins ? `+${fmt(t.r.coins)} COINS` : `+${t.r.tickets} TICKET`;
+        const label = t.r.spins ? `+${t.r.spins} SPINS` : `+${t.r.tickets} TICKET${t.r.tickets > 1 ? "S" : ""}`;
         return (
           <div key={t.id} className="glass-card flex items-center gap-3 p-2.5">
             {t.id === "yt"
