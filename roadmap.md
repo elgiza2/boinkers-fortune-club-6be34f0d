@@ -1,8 +1,10 @@
-- [ ] Replace generic event screens with Vlad's Egg Trail and Game Loot reference layouts.
-- [ ] Replace generic offer screens with Sale Blast and Fusion reference layouts.
-- [ ] Match the outer icons and preserve existing rewards, prices and claim actions.
-- [ ] Remove the selected numeric badge from event and offer icons.
-- [ ] Verify all four screens and reward claims on mobile and desktop.
-- [ ] Remove Fusion's selected chapter button.
-- [ ] Show large rewards in trail tiles and token requirements on free reward buttons.
-- [ ] Replace Game Loot milestone rows with real ranked players and rank rewards (requires shared player accounts and prize amounts).
+# Roadmap
+
+- [ ] Royal Pass (Fire Pass): small subscription 1.5 TON, big 3 TON.
+- [ ] Coins: earned only in slots; remove coin rewards from everywhere else.
+- [ ] Slots: when user wins tokens, display as coins, not tokens.
+- [ ] Slots: multiple rewards pop up on screen in a clean way when there are many.
+- [ ] Slots: the more spins the user has, the bigger the prizes.
+- [ ] Payments: user picks Telegram Stars or TON in every payment spot.
+- [ ] NFTs: spread prices from 1 TON to 5000 TON.
+- [ ] Upgrade page: remove the button the user pointed at.
