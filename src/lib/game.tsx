@@ -28,6 +28,7 @@ export interface GameState {
   passLevel: number;
   passEndsAt: number;
   premium: boolean;
+  royal: boolean;
   eventId: number;
   evTokens: number;
   evTier: number;
@@ -43,7 +44,7 @@ const initial = (): GameState => ({
   parts: { head: 0, body: 0, gear: 0 },
   lastSpinRegen: Date.now(), lastSoloClaim: Date.now(),
   tasksDone: [], claimedMilestones: [], sound: true, lang: "en",
-  passXp: 0, passLevel: 1, passEndsAt: Date.now() + PASS_MS, premium: false,
+  passXp: 0, passLevel: 1, passEndsAt: Date.now() + PASS_MS, premium: false, royal: false,
   eventId: -1, evTokens: 0, evTier: 0,
   mergeBoard: starterBoard(), mergeBest: 1, soloBank: 0, live: {}, ton: 0,
 });
@@ -79,16 +80,36 @@ export function slotPayout(r: Sym[], bet: number) {
 export const PASS_MS = 4 * 24 * 3600_000;
 /** Spin pass: XP needed to finish a level grows with level. */
 export function passNeed(level: number) { return Math.round(100 * Math.pow(1.35, level - 1)); }
-/** Gift for reaching a new pass level; premium players get double plus a ticket. */
-export function passGift(level: number, premium: boolean) {
-  const base = { coins: 1000 * level, spins: 5 + Math.floor(level / 2), tickets: 0 };
-  return premium ? { coins: base.coins * 2, spins: base.spins * 2, tickets: 1 } : base;
+/** Gift for reaching a new pass level. Premium doubles spins + a ticket; Royal quadruples + 2 tickets. Coins never come from the pass — slots only. */
+export function passGift(level: number, premium: boolean, royal = false) {
+  const spins = 5 + Math.floor(level / 2);
+  if (royal) return { coins: 0, spins: spins * 4, tickets: 2 };
+  if (premium) return { coins: 0, spins: spins * 2, tickets: 1 };
+  return { coins: 0, spins, tickets: 0 };
 }
 /** Add XP (1 per spin used), rolling over levels. Returns new xp/level and total gifts earned. */
-export function addPassXp(xp: number, level: number, add: number, premium: boolean) {
+export function addPassXp(xp: number, level: number, add: number, premium: boolean, royal = false) {
   let x = xp + add, l = level; const gift = { coins: 0, spins: 0, tickets: 0 };
-  while (x >= passNeed(l)) { x -= passNeed(l); l += 1; const g = passGift(l, premium); gift.coins += g.coins; gift.spins += g.spins; gift.tickets += g.tickets; }
+  while (x >= passNeed(l)) { x -= passNeed(l); l += 1; const g = passGift(l, premium, royal); gift.coins += g.coins; gift.spins += g.spins; gift.tickets += g.tickets; }
   return { xp: x, level: l, gift, levelsUp: l - level };
+}
+
+/** Luck tiers: the more spins the player holds, the bigger every prize. A full bar of 50 spins pays double. */
+export const PRIZE_STEP = 10;
+export function prizeTier(spins: number) {
+  const step = Math.min(5, Math.floor(Math.max(0, spins) / PRIZE_STEP));
+  const mult = 1 + step * 0.2;
+  const nextStep = step < 5 ? step + 1 : null;
+  return { mult, next: nextStep === null ? null : +(1 + nextStep * 0.2).toFixed(1), spinsToNext: nextStep === null ? 0 : nextStep * PRIZE_STEP - Math.max(0, spins) };
+}
+/** Scale a slot payout by the luck multiplier, rounding up so a bigger balance never pays less. */
+export function applyPrizeMult(win: { coins: number; spins: number; tickets: number; ton: number }, mult: number) {
+  return {
+    coins: Math.round((win.coins * mult) / 10) * 10,
+    spins: Math.ceil(win.spins * mult),
+    tickets: Math.ceil(win.tickets * mult),
+    ton: +(win.ton * mult).toFixed(2),
+  };
 }
 
 /** 48h rotating events, each with its own reel token. */
@@ -116,13 +137,13 @@ export function addEventTokens(st: { eventId: number; evTokens: number; evTier: 
 }
 
 export const MILESTONES = [
-  { at: 10, label: "500 Coins", reward: { coins: 500 } },
-  { at: 30, label: "5 Spins", reward: { spins: 5 } },
-  { at: 60, label: "Ticket", reward: { tickets: 1 }, big: true },
-  { at: 100, label: "3K Coins", reward: { coins: 3000 } },
-  { at: 160, label: "15 Spins", reward: { spins: 15 } },
-  { at: 250, label: "2 Tickets", reward: { tickets: 2 }, big: true },
-  { at: 400, label: "25K Coins", reward: { coins: 25000 }, big: true },
+  { at: 10, label: "5 Spins", reward: { spins: 5 } },
+  { at: 30, label: "1 Ticket", reward: { tickets: 1 } },
+  { at: 60, label: "15 Spins", reward: { spins: 15 }, big: true },
+  { at: 100, label: "3 Tickets", reward: { tickets: 3 } },
+  { at: 160, label: "40 Spins", reward: { spins: 40 }, big: true },
+  { at: 250, label: "8 Tickets", reward: { tickets: 8 } },
+  { at: 400, label: "100 Spins", reward: { spins: 100 }, big: true },
 ];
 
 type Reward = Partial<Pick<GameState, "coins" | "spins" | "tickets" | "solo" | "tokens" | "ton">>;
@@ -138,6 +159,7 @@ interface Ctx {
   upgrade: (p: Part) => boolean;
   completeTask: (id: string, r: Reward) => void;
   claimMilestone: (i: number) => void;
+  subscribePass: (tier: "premium" | "royal") => void;
   toggleSound: () => void;
   setLang: (lang: "en" | "ar") => void;
   gainPass: (spinsUsed: number) => number;
@@ -194,13 +216,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
     return ok && (r.coins ?? 0) <= s.coins && (r.spins ?? 0) <= s.spins && (r.tickets ?? 0) <= s.tickets;
   }, [s]);
   const gainPass = useCallback((n: number) => {
-    const r = addPassXp(s.passXp, s.passLevel, n, s.premium);
+    const r = addPassXp(s.passXp, s.passLevel, n, s.premium, s.royal);
     setS((p) => ({ ...p, passXp: r.xp, passLevel: r.level, coins: p.coins + r.gift.coins, spins: p.spins + r.gift.spins, tickets: p.tickets + r.gift.tickets }));
     return r.levelsUp ? r.level : 0;
   }, [s.passXp, s.passLevel, s.premium]);
   const gainEvent = useCallback((n: number) => {
     const r = addEventTokens(s, eventIndex(Date.now()), n);
-    setS((p) => ({ ...p, eventId: r.eventId, evTokens: r.evTokens, evTier: r.evTier, coins: p.coins + r.coins }));
+    setS((p) => ({ ...p, eventId: r.eventId, evTokens: r.evTokens, evTier: r.evTier }));
     return r.coins;
   }, [s]);
   const gainLive = useCallback((hits: Record<string, number>) => setS((p) => {
@@ -270,8 +292,12 @@ export function GameProvider({ children }: { children: ReactNode }) {
   }, []);
   const toggleSound = useCallback(() => setS((p) => ({ ...p, sound: !p.sound })), []);
   const setLang = useCallback((lang: "en" | "ar") => setS((p) => ({ ...p, lang })), []);
+  const subscribePass = useCallback((tier: "premium" | "royal") => setS((p) => ({
+    ...p, premium: true, royal: tier === "royal",
+    passEndsAt: Math.max(p.passEndsAt, Date.now() + PASS_MS),
+  })), []);
 
-  return <GameCtx.Provider value={{ s, ready, pendingSolo, nextSpinIn, grant, spend, claimSolo, upgrade, completeTask, claimMilestone, toggleSound, setLang, gainPass, gainEvent, buyMerge, moveMerge, gainLive, claimLive }}>{children}</GameCtx.Provider>;
+  return <GameCtx.Provider value={{ s, ready, pendingSolo, nextSpinIn, grant, spend, claimSolo, upgrade, completeTask, claimMilestone, subscribePass, toggleSound, setLang, gainPass, gainEvent, buyMerge, moveMerge, gainLive, claimLive }}>{children}</GameCtx.Provider>;
 }
 
 export function useGame() {
