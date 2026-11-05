@@ -52,6 +52,7 @@ function Home() {
   const [now, setNow] = useState(0);
   useEffect(() => { setNow(Date.now()); const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
   const ev = currentEvent(now);
+  const luck = prizeTier(s.spins);
   const evTok = s.eventId === ev.id ? s.evTokens : 0, evTier = s.eventId === ev.id ? s.evTier : 0;
   const [reels, setReels] = useState<Cell[]>(["bolt", "coin", "chest"]);
   const [spinning, setSpinning] = useState([false, false, false]);
@@ -145,7 +146,7 @@ function Home() {
   return (
     <Screen bare scroll={false} center={spinBtn}>
       <div className="flex h-full flex-col items-center justify-center px-3 pb-14 pt-2">
-        <div className={`w-full max-w-[360px] ${shake ? "animate-shake" : ""}`}>
+        <div className={`relative w-full max-w-[360px] ${shake ? "animate-shake" : ""}`}>
           <div className="slot-card rounded-[32px] border border-cream/20 bg-cream/10 p-3 shadow-[0_20px_50px_-12px_oklch(0_0_0/.6),inset_0_1px_0_oklch(1_0_0/.25)] backdrop-blur-2xl">
             {/* status / winner */}
             <div className="flex h-14 items-center gap-3 overflow-hidden rounded-[20px] bg-ink/40 px-3">
@@ -190,6 +191,13 @@ function Home() {
               </span>
             </div>
 
+            {/* luck meter: bigger spin balance, bigger prizes */}
+            <div className="luck-meter" aria-label={`Luck multiplier x${luck.mult}`}>
+              <span className="luck-mult">×{luck.mult}</span>
+              <div className="luck-track"><div className="luck-fill" style={{ width: `${(Math.min(s.spins, 50) / 50) * 100}%` }} /></div>
+              <span className="luck-hint">{luck.next ? `${luck.spinsToNext} SPINS TO ×${luck.next}` : "MAX LUCK!"}</span>
+            </div>
+
             {/* reels */}
             <div className="mt-3 grid grid-cols-3 gap-2">
               {reels.map((sym, i) => (
@@ -217,8 +225,8 @@ function Home() {
                 </span>
               )}
               <span className={`relative z-10 -mr-2 flex h-6 -rotate-6 items-center gap-1 rounded-md border-2 border-ink px-1.5 shadow-[0_2px_0_var(--ink)] ${s.premium ? "bg-gradient-to-b from-sun to-sun-dark" : "bg-gradient-to-b from-sky to-grape"}`}>
-                {s.premium ? <Crown className="h-3 w-3 text-ink" strokeWidth={3} /> : <Ticket className="h-3 w-3 text-cream" strokeWidth={3} />}
-                <span className={`font-display text-[10px] leading-none tracking-wider ${s.premium ? "text-ink" : "text-cream"}`}>{s.premium ? "PREMIUM" : "FREE"}</span>
+                {s.royal || s.premium ? <Crown className="h-3 w-3 text-ink" strokeWidth={3} /> : <Ticket className="h-3 w-3 text-cream" strokeWidth={3} />}
+                <span className={`font-display text-[10px] leading-none tracking-wider ${s.premium ? "text-ink" : "text-cream"}`}>{s.royal ? "ROYAL" : s.premium ? "PREMIUM" : "FREE"}</span>
               </span>
               <div className="bar relative flex-1">
                 <div className="bar-fill" style={{ width: `${Math.max(4, Math.min(100, (s.passXp / passNeed(s.passLevel)) * 100))}%`, background: "linear-gradient(90deg, var(--lime), var(--sky))" }} />
@@ -229,6 +237,17 @@ function Home() {
               </span>
             </Link>
           </div>
+          {pop && (
+            <div key={pop.k} className="win-pop" role="status">
+              <span className="win-pop-badge">LUCK ×{pop.mult}</span>
+              <strong className="win-pop-title">YOU WON!</strong>
+              <div className="win-pop-row">
+                {([["coins", ART.coin], ["spins", ART.bolt], ["tickets", ART.wheelSpin], ["ton", ART.ton]] as const).filter(([k]) => pop[k] > 0).map(([k, img]) => (
+                  <span key={k} className="win-pop-chip"><img src={img} alt="" /><b>+{k === "ton" ? pop[k] : fmt(pop[k])}</b></span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-3 w-full max-w-[360px] space-y-2">
           <EventsRow now={now} />
