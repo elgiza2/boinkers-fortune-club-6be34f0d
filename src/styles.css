@@ -543,3 +543,9 @@ body { font-family: var(--font-sans); }
 .fire-pass-sub-note { font-size:10px; text-align:center; color:var(--cream); opacity:.8; font-family:var(--font-sans); }
 
 .nft-pay { margin:6px auto 10px; display:flex; width:max-content; }
+
+/* Compact prices inside the small offer buttons. */
+.slots-offer-action .price-tag { font-size:13px; gap:3px; }
+.slots-offer-action .price-tag img { width:14px; height:14px; }
+.slots-offer-step-action .price-tag { font-size:12px; gap:2px; }
+.slots-offer-step-action .price-tag img { width:13px; height:13px; }
